@@ -4,11 +4,13 @@ import onnxruntime as ort
 import torch
 
 from audio import read, write
-from spectrum import spectrogram
+from spectrum import spectrogram, erbgram
 from stft import STFT
+from erb import ERB
 
 from df.enhance import enhance, init_df, df_features
 from df.model import ModelParams
+from df.utils import get_norm_alpha
 
 
 def filter(model, state, x):
@@ -30,6 +32,7 @@ def filter(model, state, x):
     param_hop_size = params.hop_size
     param_fft_bins = params.fft_size // 2 + 1
     param_erb_bins = params.nb_erb # 32
+    param_erb_min_width = params.min_nb_freqs
     param_deep_filter_bins = params.nb_df # 96
 
     assert getattr(model, 'freq_bins', param_fft_bins) == param_fft_bins
@@ -48,6 +51,7 @@ def filter(model, state, x):
     print()
 
     stft = STFT(framesize=param_fft_size, hopsize=param_hop_size, window='hann')
+    erb = ERB(param_sr, param_fft_size, param_erb_bins, param_erb_min_width)
 
     spec, erb_feat, spec_feat = df_features(x, state, param_deep_filter_bins, device=device)
     print('spec', spec.shape, spec.dtype)
@@ -56,13 +60,56 @@ def filter(model, state, x):
     print()
 
     if False:
+
         dfts0 = np.squeeze(torch.view_as_complex(spec).numpy())
         print(dfts0.shape, dfts0.dtype)
         spectrogram(dfts0, name='dfts0')
+
         dfts1 = stft.stft(x[0])
         print(dfts1.shape, dfts1.dtype)
         spectrogram(dfts1, name='dfts1')
+
         plot.show()
+        exit()
+
+    if False:
+
+        x = state.erb_widths()
+        y = erb.widths
+        print(x)
+        print(y)
+        assert np.allclose(x, y)
+
+        weights = erb.weights
+        print(weights.shape)
+        plot.figure()
+        for i in range(weights.shape[-1]):
+            plot.plot(weights[..., i])
+
+        plot.show()
+        exit()
+
+    if False:
+
+        # alpha = get_norm_alpha(False)
+        # print('alpha', alpha)
+
+        x = torch.view_as_complex(spec).numpy()
+        y = erb(x)
+
+        foo = np.squeeze(erb_feat.numpy())
+        bar = np.squeeze(y)
+
+        erbgram(foo, name='foo', clim=(0,1))
+        erbgram(bar, name='bar', clim=(0,1))
+
+        plot.show()
+        exit()
+
+    if True:
+        x = torch.view_as_complex(spec).numpy()
+        y = erb(x)
+        erb_feat = torch.from_numpy(y.astype(np.float32))
 
     enhanced = model(spec, erb_feat, spec_feat)[0].cpu() # orig: spec.clone()
     print('enhanced', enhanced.shape, enhanced.dtype)
