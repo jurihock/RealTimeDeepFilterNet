@@ -31,7 +31,7 @@ class ERB:
 
     def __call__(self, dfts):
 
-        x = np.abs(dfts)
+        x = np.abs(dfts) # TODO try np.absolute with 10*log10 instead
         y = np.matmul(x, self.weights)
         y = 20 * np.log10(y + np.finfo(dfts.dtype).eps)
 
