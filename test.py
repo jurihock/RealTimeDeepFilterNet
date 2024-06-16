@@ -4,6 +4,7 @@ import onnxruntime as ort
 import torch
 
 from audio import read, write
+from cpx import CPX
 from erb import ERB
 from spectrum import spectrogram, erbgram
 from stft import STFT
@@ -74,6 +75,10 @@ def filter1(model, state, x):
         minwidth=param_erb_min_width,
         alpha=param_norm_alpha)
 
+    cpx = CPX(
+        cpxsize=param_deep_filter_bins,
+        alpha=param_norm_alpha)
+
     spec, erb_feat, spec_feat = df_features(torch.from_numpy(x.astype(np.float32)), state, param_deep_filter_bins, device=cpu)
     print('spec', spec.shape, spec.dtype)
     print('erb_feat', erb_feat.shape, erb_feat.dtype)
@@ -124,10 +129,33 @@ def filter1(model, state, x):
         plot.show()
         exit()
 
+    if False:
+
+        x = torch.view_as_complex(spec_feat).numpy()
+        x = np.squeeze(np.abs(x))
+
+        y = torch.view_as_complex(spec).numpy()
+        y = cpx(y)
+        y = np.squeeze(np.abs(y))
+
+        erbgram(x, name='x', clim=(0,2))
+        erbgram(y, name='y', clim=(0,2))
+
+        plot.show()
+        exit()
+
     if True:
+
         x = torch.view_as_complex(spec).numpy()
         y = erb(x)
         erb_feat = torch.from_numpy(y.astype(np.float32))
+
+    if True:
+
+        x = torch.view_as_complex(spec).numpy()
+        y = cpx(x)
+        y = np.stack((y.real, y.imag), axis=-1)
+        spec_feat = torch.from_numpy(y.astype(np.float32))
 
     enhanced = model(spec, erb_feat, spec_feat)[0].cpu() # orig: spec.clone()
     print('enhanced', enhanced.shape, enhanced.dtype)
