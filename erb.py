@@ -18,25 +18,31 @@ def erb2hz(erb):
 
 class ERB:
 
-    def __init__(self, samplerate: int, fftsize: int, erbsize: int, minwidth: int):
+    def __init__(self, samplerate: int, fftsize: int, erbsize: int, minwidth: int, alpha: float):
+
         self.samplerate = samplerate
         self.fftsize = fftsize
         self.erbsize = erbsize
         self.minwidth = minwidth
+        self.alpha = alpha
 
         self.widths = ERB.get_band_widths(samplerate, fftsize, erbsize, minwidth)
         self.weights = ERB.get_band_weights(samplerate, self.widths)
 
-    def __call__(self, dfts, db=True, alpha=0.99):
+    def __call__(self, dfts):
+
         x = np.abs(dfts)
         y = np.matmul(x, self.weights)
-        if db:
-            y = 20 * np.log10(y + np.finfo(dfts.dtype).eps)
-            mean = np.full(y.shape[-1], y[..., 0, :])
-            for i in range(y.shape[-2]):
-                mean = y[..., i, :] * (1 - alpha) + mean * alpha
-                y[..., i, :] -= mean
-            y /= 40
+        y = 20 * np.log10(y + np.finfo(dfts.dtype).eps)
+
+        # TODO ISSUE #100
+        mean = np.full(y.shape[-1], y[..., 0, :])
+        alpha = self.alpha
+        for i in range(y.shape[-2]):
+            mean = y[..., i, :] * (1 - alpha) + mean * alpha
+            y[..., i, :] -= mean
+        y /= 40
+
         return y
 
     @staticmethod

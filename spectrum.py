@@ -50,6 +50,7 @@ def spectrogram(x: ArrayLike, *,
 
     return plot
 
+
 def erbgram(x: ArrayLike, *,
                 name: str = 'ERB',
                 xlim: Tuple[float, float] = (None, None),
