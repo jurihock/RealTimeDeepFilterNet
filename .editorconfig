@@ -8,3 +8,14 @@ trim_trailing_whitespace = true
 [*.py]
 indent_style = space
 indent_size = 4
+
+[*.{h,c,cpp}]
+indent_style = space
+indent_size = 2
+
+[{*.cmake,CMakeLists.txt}]
+indent_style = space
+indent_size = 2
+
+[Makefile]
+indent_style = tab

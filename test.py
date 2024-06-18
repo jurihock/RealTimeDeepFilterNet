@@ -27,8 +27,6 @@ def filter1(model, state, x):
 
     cpu = torch.device('cpu')
 
-    model.eval()
-
     if hasattr(model, 'reset_h0'):
         bs = x.shape[0]
         print(f'reset_h0 bs={bs}')
@@ -157,7 +155,8 @@ def filter1(model, state, x):
         y = np.stack((y.real, y.imag), axis=-1)
         spec_feat = torch.from_numpy(y.astype(np.float32))
 
-    enhanced = model(spec, erb_feat, spec_feat)[0].cpu() # orig: spec.clone()
+    output = model(spec, erb_feat, spec_feat) # orig: spec.clone()
+    enhanced = output[0].cpu()
     print('enhanced', enhanced.shape, enhanced.dtype)
     enhanced = enhanced.squeeze(1)
     print('enhanced squeeze', enhanced.shape, enhanced.dtype)
@@ -173,6 +172,8 @@ def filter1(model, state, x):
 if __name__ == '__main__':
 
     model, state, _ = init_df()
+
+    model.eval()
 
     x, sr = read('x.wav', state.sr())
 
