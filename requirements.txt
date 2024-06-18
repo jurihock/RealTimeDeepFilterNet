@@ -1,0 +1,10 @@
+deepfilternet
+matplotlib
+numpy
+onnx
+onnxruntime
+resampy
+sdft
+soundfile
+torch
+torchaudio
