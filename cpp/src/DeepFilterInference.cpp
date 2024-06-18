@@ -28,25 +28,25 @@ void DeepFilterInference::inference() const
                      const std::initializer_list<std::string>& outputs)
   {
     std::vector<const char*> input_names;
-    for (const auto& input : inputs)
+    for (const std::string& input : inputs)
     {
       input_names.emplace_back(input.c_str());
     }
 
     std::vector<const char*> output_names;
-    for (const auto& output : outputs)
+    for (const std::string& output : outputs)
     {
       output_names.emplace_back(output.c_str());
     }
 
     std::vector<Ort::Value> input_values;
-    for (const auto& input : inputs)
+    for (const std::string& input : inputs)
     {
       input_values.emplace_back(tensor(input));
     }
 
     std::vector<Ort::Value> output_values;
-    for (const auto& output : outputs)
+    for (const std::string& output : outputs)
     {
       output_values.emplace_back(tensor(output));
     }
@@ -254,7 +254,7 @@ std::map<std::string, std::shared_ptr<DeepFilterInference::Tensor>> DeepFilterIn
 
 std::map<std::string, std::shared_ptr<Ort::Session>> DeepFilterInference::get_sessions()
 {
-  const std::filesystem::path& onnxpath = DeepFilterNetOnnx;
+  const std::filesystem::path onnxpath = DeepFilterNetOnnx;
 
   const std::map<std::string, std::filesystem::path> onnxpaths
   {
