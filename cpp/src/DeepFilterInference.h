@@ -17,7 +17,8 @@ public:
   virtual ~DeepFilterInference() = default;
 
   float samplerate() const { return 48000; }
-  size_t framesize() const { return 1024; }
+  size_t framesize() const { return 960; }
+  size_t hopsize() const { return 480; }
   size_t erbsize() const { return 32; }
   size_t cpxsize() const { return 96; }
 

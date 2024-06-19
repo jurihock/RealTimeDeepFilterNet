@@ -1,31 +1,29 @@
-#include <array>
-#include <filesystem>
 #include <iostream>
-#include <string>
-#include <vector>
-
-#include <xt.h>
-
-#include <npy.hpp>
 
 #include <DeepFilter.h>
+#include <FFT.h>
+#include <STFT.h>
 
 int main()
 {
-  DeepFilter df;
+  DeepFilter filter;
 
-  std::cout << df.probe() << std::endl;
+  // std::cout << filter.probe() << std::endl;
 
-  if (false) // test npy
+  auto samplerate = filter.samplerate();
+  auto framesize = filter.framesize();
+  auto hopsize = filter.hopsize();
+  auto chronometry = true;
+  auto samples = static_cast<size_t>(10 * samplerate);
+
+  auto fft = std::make_shared<FFT>();
+  auto stft = std::make_shared<STFT>(fft, framesize, hopsize, chronometry);
+
+  std::vector<float> x(samples);
+  std::vector<float> y(samples);
+
+  (*stft)(x, y, [&](std::span<std::complex<float>> dft)
   {
-    const std::vector<double> data{1, 2, 3, 4, 5, 6};
-
-    npy::npy_data<double> d;
-    d.data = data;
-    d.shape = {2, 3};
-    d.fortran_order = false; // optional
-
-    const std::string path{"out.npy"};
-    npy::write_npy(path, d);
-  }
+    filter(dft, dft);
+  });
 }
