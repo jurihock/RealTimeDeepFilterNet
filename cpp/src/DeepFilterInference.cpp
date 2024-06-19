@@ -28,24 +28,30 @@ void DeepFilterInference::inference() const
                      const std::initializer_list<std::string>& outputs)
   {
     std::vector<const char*> input_names;
+    std::vector<const char*> output_names;
+    std::vector<Ort::Value> input_values;
+    std::vector<Ort::Value> output_values;
+
+    input_names.reserve(inputs.size());
+    output_names.reserve(outputs.size());
+    input_values.reserve(inputs.size());
+    output_values.reserve(outputs.size());
+
     for (const std::string& input : inputs)
     {
       input_names.emplace_back(input.c_str());
     }
 
-    std::vector<const char*> output_names;
     for (const std::string& output : outputs)
     {
       output_names.emplace_back(output.c_str());
     }
 
-    std::vector<Ort::Value> input_values;
     for (const std::string& input : inputs)
     {
       input_values.emplace_back(tensor(input));
     }
 
-    std::vector<Ort::Value> output_values;
     for (const std::string& output : outputs)
     {
       output_values.emplace_back(tensor(output));
