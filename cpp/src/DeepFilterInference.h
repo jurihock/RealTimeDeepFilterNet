@@ -21,7 +21,7 @@ public:
   size_t erbsize() const { return 32; }
   size_t cpxsize() const { return 96; }
 
-  std::string warmup() const;
+  std::string probe() const;
 
 protected:
 

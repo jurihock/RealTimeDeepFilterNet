@@ -66,7 +66,7 @@ void DeepFilterInference::inference() const
   session("df_dec", { "c0", "emb" }, { "coefs" });
 }
 
-std::string DeepFilterInference::warmup() const
+std::string DeepFilterInference::probe() const
 {
   auto session2str = [](const std::map<std::string, std::shared_ptr<Ort::Session>>& sessions, const std::string name)
   {

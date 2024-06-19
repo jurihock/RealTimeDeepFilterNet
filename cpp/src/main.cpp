@@ -14,7 +14,7 @@ int main()
 {
   DeepFilter df;
 
-  std::cout << df.warmup() << std::endl;
+  std::cout << df.probe() << std::endl;
 
   if (false) // test npy
   {
