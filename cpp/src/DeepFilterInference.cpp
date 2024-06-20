@@ -1,5 +1,7 @@
 #include <DeepFilterInference.h>
 
+#include <DeepAssert.h>
+
 DeepFilterInference::DeepFilterInference() :
   tensors(get_tensors()),
   sessions(get_sessions())
@@ -231,13 +233,10 @@ std::map<std::string, std::shared_ptr<DeepFilterInference::Tensor>> DeepFilterIn
 
     for (auto value : shape)
     {
-      if (value < 0)
-      {
-        throw std::runtime_error(
-          "Negative tensor shape element!");
-      }
+      deep_assert(value >= 0,
+        "Negative tensor shape element!");
 
-      product *= static_cast<size_t>(value);
+      product *= static_cast<size_t>(std::abs(value));
     }
 
     return product;
